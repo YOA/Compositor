@@ -1,5 +1,13 @@
 # Compositor
 
+> [!NOTE]
+> This fork includes an unofficial macOS 15 compatibility branch for Compositor 1.3.
+> Upstream officially targets macOS 26.5+.
+>
+> [English macOS 15 guide](docs/macos15.md) / [日本語 macOS 15ガイド](docs/macos15-ja.md)
+>
+> This compatibility fork is provided on a best-effort basis. Ongoing maintenance and support are not guaranteed.
+
 Adobe Photoshop costs too much and tools like GIMP don’t feel familiar enough for me to stay in flow. That’s why I built Compositor.
 
 The goal was to create a full-featured image editor that is completely free and open source. I use Photoshop for compositing and post-processing, so Compositor is built around that workflow - with the tools needed to create a pixel-perfect final image.
@@ -7,6 +15,9 @@ The goal was to create a full-featured image editor that is completely free and 
 Because it’s open source, you can download the Xcode project and add, remove, or modify any feature to fit your workflow.
 
 ## Installation
+
+The download and Homebrew options below are for the official upstream release and require macOS 26.5+.
+For macOS 15, use the compatibility build instructions above.
 
 ### Download
 Get Compositor from [robbietilton.com/compositor](https://robbietilton.com/compositor), or download the latest release directly from [GitHub Releases](https://github.com/robbietilton/Compositor/releases/latest).
@@ -72,29 +83,43 @@ brew install --cask robbietilton-compositor
 - Keep working while a project saves
 - Photoshop-style keyboard shortcuts throughout, remappable in Edit > Keyboard Shortcuts
 - Drag a number's label to scrub its value, as in Photoshop
-- Automatic updates, signed and notarized
+- Automatic updates, signed and notarized (official upstream releases; not provided by this macOS 15 compatibility fork)
 
 ### Works with AI agents
 - AI agents and scripts can build and edit projects directly: a `.comp` is a folder of PNG layers and a manifest, and an open project updates live as it's written. See [Writing Compositor projects](docs/writing-comp-files.md)
 
 ## Requirements
 
+### macOS 15 compatibility branch
+
+- macOS 15.0 or later to run
+- macOS 15.6 or later and Xcode 26.1.1 to build using the compatibility guide
+
+### Upstream
+
 - macOS 26.5 or later
 - Xcode 26 or later (to build from source)
 
 ## Building
 
-Open `Compositor.xcodeproj` and run the **Compositor** scheme.
+For the macOS 15 compatibility branch:
+
+- [English guide](docs/macos15.md)
+- [日本語ガイド](docs/macos15-ja.md)
+
+For upstream, open `Compositor.xcodeproj` and run the **Compositor** scheme.
 
 ## Releasing
 
-`scripts/release.sh` builds a Release version, signs it with Developer ID, notarizes and staples it, and packages it into `dist/Compositor-<version>.dmg`.
+The upstream `scripts/release.sh` builds a Release version, signs it with Developer ID, notarizes and staples it, and packages it into `dist/Compositor-<version>.dmg`.
 
 It needs, all kept outside this repository:
 
 - a **Developer ID Application** certificate in the login keychain
 - notarization credentials saved with `xcrun notarytool store-credentials "compositor-notary" …`
 - [`create-dmg`](https://github.com/create-dmg/create-dmg) (`brew install create-dmg`)
+
+This macOS 15 compatibility fork does not provide its own signed/notarized release or automatic update channel.
 
 ## License
 

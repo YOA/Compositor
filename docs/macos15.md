@@ -81,7 +81,13 @@ cd Compositor
 git checkout a299f4cf09ed150b3900487467fa1371d3f386bb
 ```
 
-Apply the compatibility patch:
+Download the compatibility patch:
+
+```bash
+curl -L   https://raw.githubusercontent.com/YOA/Compositor/local/macos15-1.3/patches/compositor-1.3-macos15.patch   -o compositor-1.3-macos15.patch
+```
+
+Apply it:
 
 ```bash
 git apply compositor-1.3-macos15.patch

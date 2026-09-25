@@ -81,7 +81,13 @@ cd Compositor
 git checkout a299f4cf09ed150b3900487467fa1371d3f386bb
 ```
 
-互換パッチを適用します。
+互換パッチをダウンロードします。
+
+```bash
+curl -L   https://raw.githubusercontent.com/YOA/Compositor/local/macos15-1.3/patches/compositor-1.3-macos15.patch   -o compositor-1.3-macos15.patch
+```
+
+適用：
 
 ```bash
 git apply compositor-1.3-macos15.patch
