@@ -1,136 +1,69 @@
-# Compositor 1.2.11 — macOS 15 互換版 導入ガイド
+# Compositor 1.2.11 — macOS 15 互換版
 
-これは
-[robbietilton/Compositor](https://github.com/robbietilton/Compositor)
-を **macOS 15でビルド・実行するための非公式互換ブランチ**です。
+これは [robbietilton/Compositor](https://github.com/robbietilton/Compositor) を
+**macOS 15でビルド・実行するための非公式互換ブランチ**です。
 
-公式のCompositorは **macOS 26.5以降**を対象としています。
-このブランチではCompositor 1.2.11の画像処理やドキュメント処理には手を加えず、
-macOS 15でビルドするために必要な最小限の互換処理だけを追加しています。
+公式版は macOS 26.5以降を対象としています。
+このForkでは、Compositor 1.2.11の画像処理やドキュメント処理には手を加えず、
+macOS 15向けの最小限の互換修正だけを追加しています。
 
-> [!IMPORTANT]
-> この手順書は、Xcodeやソースコードからのアプリビルドに慣れていない方でも
-> 順番に進められるように書いています。
-> すでに古いXcodeを使っている場合でも、削除や置き換えは不要です。
+## どちらを使えばよいですか？
 
-## 検証対象
+### 通常はこちら
 
-この互換ブランチは以下を基準にしています。
+このForkにはmacOS 15向け修正がすでに入っています。
 
-- Compositor 1.2.11
-- Base commit: `c64183f464b0e234f8b9b7c42695c1fbea2ab553`
-- Deployment Target: macOS 15.0
-- Xcode 26.1.1
-- Releaseビルド: 成功確認済み
+**互換パッチを手動で適用する必要はありません。**
 
-各自のMacでの動作確認については、後述の **「Compositorを起動する」** まで実行して確認してください。
+`local/macos15-1.2.11` ブランチをcloneして、Xcode 26.1.1でビルドしてください。
 
-## 変更内容
+### 上級者向け
 
-変更しているのはmacOS互換性に関係する部分だけです。
+公式upstreamのCompositor 1.2.11をそのまま使いたい場合は、
+Forkを使わず互換パッチだけを適用できます。
 
-- Deployment Target: macOS 26.5 → macOS 15.0
-- `ToolbarSpacer` はmacOS 26以降だけで使用
-- `sharedBackgroundVisibility(.hidden)` はmacOS 26以降だけで使用
-- `NSPopUpButton.borderShape` はmacOS 26以降だけで使用
-
-以下には変更を加えていません。
-
-- 画像処理
-- PSD / PSB読み込み
-- Camera Raw
-- レイヤー / マスク
-- ブラシ
-- フィルター
-- プロジェクト / ドキュメント形式
+→ [パッチだけ適用する場合](#パッチだけ適用する場合)
 
 ---
 
-# 初心者向け インストール手順
+# 初心者向け手順
 
-## 0. 最初に確認すること
+## 1. 必要環境
 
-この手順でビルドするには以下が必要です。
+ビルドには以下が必要です。
 
-- **macOS 15.6以降**のMac
+- macOS 15.6以降
 - Xcode 26.1.1
 - インターネット接続
-- Xcodeとビルドファイル用に、20GB以上の空き容量を推奨
 
-完成したCompositorアプリ自体のDeployment Targetは
-**macOS 15.0以降**です。
+完成したCompositorアプリ自体のDeployment Targetは **macOS 15.0** です。
 
-ここでmacOS 15.6以降を要求しているのは、
-Xcode 26.1.1を動かしてビルドするためです。
-
-この手順ではApple Silicon版のXcode 26.1.1を使用します。
-Intel Macの場合はApple Silicon専用のXcodeアーカイブを使用しないでください。
+この手順ではApple Silicon版Xcode 26.1.1を使用します。
 
 ---
 
-## 1. macOSのバージョンを確認する
+## 2. Xcode 26.1.1を追加する
 
-**ターミナル**を開きます。
+すでにXcode 16.4などを使っている場合でも、削除する必要はありません。
 
-Finderから開く場合：
-
-`アプリケーション → ユーティリティ → ターミナル`
-
-次を実行します。
-
-```bash
-sw_vers -productVersion
-```
-
-この手順でビルドする場合、**15.6以降**であることを確認してください。
-
-例：
-
-```text
-15.7.9
-```
-
-MacがApple Siliconかどうかも確認できます。
-
-```bash
-uname -m
-```
-
-Apple Silicon Macなら次のように表示されます。
-
-```text
-arm64
-```
-
----
-
-## 2. 今のXcodeを残したままXcode 26.1.1を追加する
-
-Xcode 16.4など、すでに古いXcodeを使っている場合でも
-**削除する必要はありません**。
-
-Apple公式のDeveloper Downloadsから、
+Apple公式のDeveloper Downloadsから
 
 ```text
 Xcode_26.1.1_Apple_silicon.xip
 ```
 
-をダウンロードします。
+をダウンロードして展開します。
 
-### Xcodeを展開する
+Finderでダブルクリックしても構いません。
 
-Finderで `.xip` ファイルをダブルクリックしても構いません。
-
-ターミナルから展開する場合：
+ターミナルで展開する場合：
 
 ```bash
 cd ~/Downloads
 xip -x Xcode_26.1.1_Apple_silicon.xip
 ```
 
-展開するとDownloadsフォルダに新しい `Xcode.app` ができます。
-
-**今展開した方のXcodeだけ**名前を変えます。
+展開された `Xcode.app` を名前変更します。
 
 ```bash
 cd ~/Downloads
@@ -143,28 +76,16 @@ Applicationsへ移動します。
 sudo mv Xcode-26.1.1.app /Applications/
 ```
 
-パスワードを求められたら、Macへのログインパスワードを入力します。
-
-これで例えば次の2つを共存できます。
+これで既存Xcodeと共存できます。
 
 ```text
 /Applications/Xcode.app
 /Applications/Xcode-26.1.1.app
 ```
 
-例：
-
-- `/Applications/Xcode.app` → 普段使っているXcode 16.4
-- `/Applications/Xcode-26.1.1.app` → Compositor用のXcode 26.1.1
-
-Xcode 26.1.1を追加しても、
-過去のアプリを新しいUIへ強制移行する必要はありません。
-
 ---
 
-## 3. Xcode 26.1.1の初回セットアップ
-
-まず、このターミナルだけXcode 26.1.1を使うよう指定します。
+## 3. Xcode 26.1.1をこのターミナルで使う
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer
@@ -182,57 +103,34 @@ xcodebuild -version
 Xcode 26.1.1
 ```
 
-ライセンス未同意のメッセージが出る場合：
+ライセンス未同意と表示された場合：
 
 ```bash
-sudo DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer \
-xcodebuild -license accept
+sudo DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer xcodebuild -license accept
 ```
 
-続けて初回セットアップを完了します。
+続けて：
 
 ```bash
-sudo DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer \
-xcodebuild -runFirstLaunch
+sudo DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer xcodebuild -runFirstLaunch
 ```
 
-その後、現在のターミナルで再度Xcode 26.1.1を指定します。
-
-```bash
-export DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer
-```
-
-> [!NOTE]
-> `DEVELOPER_DIR` の指定は現在のターミナルセッションだけに有効です。
-> ターミナルを閉じれば、普段のXcode環境には影響しません。
+`DEVELOPER_DIR` は現在のターミナルだけに有効です。
+普段使っているXcodeの設定は変更されません。
 
 ---
 
-## 4. macOS 15互換版Compositorをダウンロードする
-
-ホームフォルダにソースコードを置く例です。
+## 4. macOS 15互換版を取得する
 
 ```bash
 cd ~
-```
 
-macOS 15互換ブランチを直接cloneします。
+git clone   --branch local/macos15-1.2.11   --single-branch   https://github.com/YOA/Compositor.git   Compositor-macOS15
 
-```bash
-git clone \
-  --branch local/macos15-1.2.11 \
-  --single-branch \
-  https://github.com/YOA/Compositor.git \
-  Compositor-macOS15
-```
-
-フォルダへ移動します。
-
-```bash
 cd ~/Compositor-macOS15
 ```
 
-ブランチを確認します。
+確認：
 
 ```bash
 git branch --show-current
@@ -246,66 +144,13 @@ local/macos15-1.2.11
 
 ---
 
-## 5. このターミナルでXcode 26.1.1を使う
-
-もう一度指定しておくと確実です。
+## 5. Release版をビルドする
 
 ```bash
-export DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer
+xcodebuild   -project Compositor.xcodeproj   -scheme Compositor   -configuration Release   -destination 'platform=macOS'   -derivedDataPath .build-macos15   CODE_SIGNING_ALLOWED=NO   build
 ```
 
-確認：
-
-```bash
-xcodebuild -version
-```
-
-次の表示ならOKです。
-
-```text
-Xcode 26.1.1
-```
-
----
-
-## 6. 依存パッケージを取得する
-
-CompositorはSparkleパッケージを使用しています。
-
-次を実行します。
-
-```bash
-xcodebuild \
-  -project Compositor.xcodeproj \
-  -scheme Compositor \
-  -resolvePackageDependencies
-```
-
-初回はパッケージのダウンロードが行われるため、
-少し時間がかかる場合があります。
-
----
-
-## 7. Release版をビルドする
-
-以下をまとめて実行します。
-
-```bash
-xcodebuild \
-  -project Compositor.xcodeproj \
-  -scheme Compositor \
-  -configuration Release \
-  -destination 'platform=macOS' \
-  -derivedDataPath .build-macos15 \
-  CODE_SIGNING_ALLOWED=NO \
-  build
-```
-
-数分かかる場合があります。
-
-### 成功した場合
-
-最後の方に、
+最後に
 
 ```text
 ** BUILD SUCCEEDED **
@@ -313,7 +158,7 @@ xcodebuild \
 
 と表示されれば成功です。
 
-完成したアプリは次の場所にあります。
+完成したアプリ：
 
 ```text
 .build-macos15/Build/Products/Release/Compositor.app
@@ -321,139 +166,47 @@ xcodebuild \
 
 ---
 
-## 8. ローカル利用用に署名する
-
-上のビルドでは通常のDeveloper ID署名を無効にしています。
-
-自分のMacで実行するため、ad-hoc署名を行います。
+## 6. ローカル利用用に署名する
 
 ```bash
-codesign --force --deep --sign - \
-.build-macos15/Build/Products/Release/Compositor.app
+codesign --force --deep --sign - .build-macos15/Build/Products/Release/Compositor.app
 ```
 
-次のような表示が出ることがあります。
+次の表示は正常です。
 
 ```text
 Compositor.app: replacing existing signature
 ```
 
-これは正常です。
+---
 
-署名を確認します。
+## 7. 起動する
 
 ```bash
-codesign --verify --deep --strict \
-.build-macos15/Build/Products/Release/Compositor.app
+open -n .build-macos15/Build/Products/Release/Compositor.app
 ```
 
-**何も表示されなければ成功**です。
+Compositorの画面が開けば起動成功です。
+
+最低限、新規キャンバス作成・画像読み込み・ブラシ・レイヤー操作・保存/再オープンを確認してください。
 
 ---
 
-## 9. macOS 15向けバイナリになっているか確認する
+## 8. Applicationsへ入れる
 
-次を実行します。
+正常に起動することを確認した後：
 
 ```bash
-otool -l \
-.build-macos15/Build/Products/Release/Compositor.app/Contents/MacOS/Compositor \
-| grep -A4 LC_BUILD_VERSION
+sudo ditto .build-macos15/Build/Products/Release/Compositor.app /Applications/Compositor.app
 ```
 
-次の表示を探します。
-
-```text
-minos 15.0
-```
-
-`minos 15.0` になっていれば、
-macOS 15を最低Deployment Targetとしてビルドされています。
+以後はFinderの「アプリケーション」やSpotlightから起動できます。
 
 ---
 
-## 10. Compositorを起動する
+# パッチだけ適用する場合
 
-次を実行します。
-
-```bash
-open -n \
-.build-macos15/Build/Products/Release/Compositor.app
-```
-
-Compositorの画面が開けば、まず起動成功です。
-
-最低限、次の動作を確認することを推奨します。
-
-1. 新規キャンバスを作成
-2. PNGまたはJPEGを読み込む
-3. ブラシで1ストローク描く
-4. レイヤーを追加・複製・並べ替え
-5. Blend Modeを変更
-6. Type Toolを使い、フォント選択を開く
-7. プロジェクトを保存
-8. 一度閉じて再度開く
-
-ここまで問題なければ、
-主要な互換性関連の経路は動作していると確認できます。
-
----
-
-## 11. Applicationsフォルダへインストールする
-
-Compositorが正常に起動することを確認してから行ってください。
-
-すでに `/Applications/Compositor.app` が存在する場合は、
-先にFinderからゴミ箱へ移動してください。
-
-その後：
-
-```bash
-sudo ditto \
-.build-macos15/Build/Products/Release/Compositor.app \
-/Applications/Compositor.app
-```
-
-これで通常のMacアプリと同様に、
-
-- Finder → アプリケーション
-- Spotlight
-- Launchpad
-
-から起動できます。
-
-ターミナルから起動する場合：
-
-```bash
-open /Applications/Compositor.app
-```
-
----
-
-# 再ビルドについて
-
-このブランチはCompositor 1.2.11を基準にしています。
-
-将来の公式Compositorの新バージョンに、
-このパッチがそのまま使えるとは限りません。
-
-同じブランチを再ビルドする場合：
-
-```bash
-cd ~/Compositor-macOS15
-export DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer
-rm -rf .build-macos15
-```
-
-その後、Releaseビルドを再度実行してください。
-
-この互換forkには独自の署名済み・notarized済み自動アップデート配布経路はありません。
-
----
-
-# Forkを使わず、パッチだけ適用する場合
-
-公式upstreamから開始する場合：
+公式upstreamのCompositor 1.2.11を使いたい場合：
 
 ```bash
 git clone https://github.com/robbietilton/Compositor.git
@@ -464,221 +217,37 @@ git checkout c64183f464b0e234f8b9b7c42695c1fbea2ab553
 互換パッチをダウンロードします。
 
 ```bash
-curl -L \
-  https://raw.githubusercontent.com/YOA/Compositor/local/macos15-1.2.11/patches/compositor-1.2.11-macos15.patch \
-  -o compositor-1.2.11-macos15.patch
+curl -L   https://raw.githubusercontent.com/YOA/Compositor/local/macos15-1.2.11/patches/compositor-1.2.11-macos15.patch   -o compositor-1.2.11-macos15.patch
 ```
 
-適用します。
+適用：
 
 ```bash
 git apply compositor-1.2.11-macos15.patch
 ```
 
-その後、この手順書のビルド手順を実行してください。
+その後、上記のXcode 26.1.1でビルドしてください。
 
 ---
 
-# トラブルシューティング
+# このForkについて
 
-## `You have not agreed to the Xcode and Apple SDKs license`
+このForkは、Compositor 1.2.11をmacOS 15でとりあえず試してみたい人向けの
+**非公式な互換版**です。
 
-次を実行します。
+継続的なメンテナンスや、公式Compositorの将来バージョンへの追従は約束していません。
 
-```bash
-sudo DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer \
-xcodebuild -license accept
-```
+自分で使用する中で修正や改善を行った場合は、
+気まぐれにこのForkへ反映・更新することがあります。
 
-続けて：
+macOS 15固有の問題や、このFork固有の不具合については、
+基本的に各自での調査・修正をお願いします。
+必要に応じてForkして自由に変更してください。
 
-```bash
-sudo DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer \
-xcodebuild -runFirstLaunch
-```
+このFork固有の問題を公式upstreamへ問い合わせるのは避けてください。
 
----
-
-## `xcodebuild -version` がXcode 16.xのまま
-
-次を実行してください。
-
-```bash
-export DEVELOPER_DIR=/Applications/Xcode-26.1.1.app/Contents/Developer
-xcodebuild -version
-```
-
-システム全体のXcodeを変更する必要がない場合は、
-`sudo xcode-select` を使う必要はありません。
-
----
-
-## `Xcode-26.1.1.app` が見つからない
-
-ApplicationsにあるXcodeを確認します。
-
-```bash
-ls -d /Applications/Xcode*
-```
-
-次のパスが存在するか確認してください。
-
-```text
-/Applications/Xcode-26.1.1.app
-```
-
-別の名前にした場合は、その名前に合わせて
-`DEVELOPER_DIR` を変更してください。
-
----
-
-## Gitで「フォルダがすでに存在する」と表示される
-
-すでにclone済みなら、もう一度cloneする必要はありません。
-
-```bash
-cd ~/Compositor-macOS15
-```
-
-ブランチ確認：
-
-```bash
-git branch --show-current
-```
-
-必要であれば：
-
-```bash
-git switch local/macos15-1.2.11
-```
-
----
-
-## Sparkleやパッケージ取得で失敗する
-
-インターネット接続を確認し、もう一度：
-
-```bash
-xcodebuild \
-  -project Compositor.xcodeproj \
-  -scheme Compositor \
-  -resolvePackageDependencies
-```
-
-その後、再度ビルドしてください。
-
----
-
-## ビルドが失敗する
-
-ビルドログを保存しながら実行できます。
-
-```bash
-xcodebuild \
-  -project Compositor.xcodeproj \
-  -scheme Compositor \
-  -configuration Release \
-  -destination 'platform=macOS' \
-  -derivedDataPath .build-macos15 \
-  CODE_SIGNING_ALLOWED=NO \
-  build 2>&1 | tee build.log
-```
-
-完全なログが、
-
-```text
-build.log
-```
-
-として保存されます。
-
-問題報告時には以下を添えてください。
-
-- macOSのバージョン
-- Macの機種 / Apple SiliconかIntelか
-- `xcodebuild -version` の結果
-- `build.log` 最後付近のエラー
-
----
-
-## `codesign` で `replacing existing signature` と表示された
-
-正常です。
-
-```text
-Compositor.app: replacing existing signature
-```
-
-はエラーではありません。
-
----
-
-## `codesign --verify` で何も表示されない
-
-正常です。
-
-何も表示されなければ署名検証成功です。
-
----
-
-## ビルドには成功したがアプリが起動しない
-
-まずターミナルから起動します。
-
-```bash
-open -n \
-.build-macos15/Build/Products/Release/Compositor.app
-```
-
-直近のログを確認できます。
-
-```bash
-log show --last 5m \
-  --style compact \
-  --predicate 'process == "Compositor"' \
-| tail -200
-```
-
-問題報告時には、この出力を添えてください。
-
----
-
-## `minos 15.0` になっていない
-
-現在のブランチを確認します。
-
-```bash
-git branch --show-current
-```
-
-次である必要があります。
-
-```text
-local/macos15-1.2.11
-```
-
-その後、ローカルのビルドフォルダだけ削除します。
-
-```bash
-rm -rf .build-macos15
-```
-
-もう一度ビルドしてください。
-
----
-
-# 重要事項
-
-これは非公式のmacOS 15互換ブランチです。
-
-公式upstreamのメンテナはmacOS 26.5以降を対象とする方針を選択しており、
-現在macOS 15互換性を公式に保守する予定はありません。
-
-macOS 15互換版固有の問題は、
-公式upstreamではなくこのFork側へ報告してください。
-
-このビルドはローカル利用向けのad-hoc署名です。
-公式のDeveloper ID署名・notarization済みCompositorリリースではありません。
+このビルドはローカル利用向けのad-hoc署名であり、
+公式のDeveloper ID署名・notarization済みリリースではありません。
 
 ## License
 
