@@ -1,0 +1,136 @@
+diff --git a/Compositor.xcodeproj/project.pbxproj b/Compositor.xcodeproj/project.pbxproj
+index 1e9a937..5d71ad8 100644
+--- a/Compositor.xcodeproj/project.pbxproj
++++ b/Compositor.xcodeproj/project.pbxproj
+@@ -332,7 +332,7 @@
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+ 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 26.5;
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+ 				MTL_FAST_MATH = YES;
+ 				ONLY_ACTIVE_ARCH = YES;
+@@ -390,7 +390,7 @@
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+ 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 26.5;
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				MTL_FAST_MATH = YES;
+ 				SDKROOT = macosx;
+@@ -422,6 +422,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MARKETING_VERSION = 1.2.11;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.wonderassembly.compositor;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -459,6 +460,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MARKETING_VERSION = 1.2.11;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.wonderassembly.compositor;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -481,7 +483,7 @@
+ 				CURRENT_PROJECT_VERSION = 26;
+ 				DEVELOPMENT_TEAM = 3E4X3B9Z9T;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 26.5;
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MARKETING_VERSION = 1.2.11;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.wonderassembly.compositor.tests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -502,7 +504,7 @@
+ 				CURRENT_PROJECT_VERSION = 26;
+ 				DEVELOPMENT_TEAM = 3E4X3B9Z9T;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 26.5;
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MARKETING_VERSION = 1.2.11;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.wonderassembly.compositor.tests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -522,6 +524,7 @@
+ 				CURRENT_PROJECT_VERSION = 26;
+ 				DEVELOPMENT_TEAM = 3E4X3B9Z9T;
+ 				GENERATE_INFOPLIST_FILE = YES;
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MARKETING_VERSION = 1.2.11;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.wonderassembly.compositor.uitests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -541,6 +544,7 @@
+ 				CURRENT_PROJECT_VERSION = 26;
+ 				DEVELOPMENT_TEAM = 3E4X3B9Z9T;
+ 				GENERATE_INFOPLIST_FILE = YES;
++				MACOSX_DEPLOYMENT_TARGET = 15.0;
+ 				MARKETING_VERSION = 1.2.11;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.wonderassembly.compositor.uitests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+diff --git a/Compositor/ContentView.swift b/Compositor/ContentView.swift
+index 9cfba1c..97c127a 100644
+--- a/Compositor/ContentView.swift
++++ b/Compositor/ContentView.swift
+@@ -157,20 +157,24 @@ struct ContentView: View {
+                     .disabled(session.isImporting || session.showsBusy || session.levels != nil)
+                     .modifier(NewProjectDropTarget(workspace: applicationDelegate?.workspace))
+             }
+-            ToolbarSpacer(.fixed, placement: .navigation)
++            if #available(macOS 26.0, *) { ToolbarSpacer(.fixed, placement: .navigation) }
+             if let workspace = applicationDelegate?.workspace {
+-                ToolbarItem(placement: .navigation) {
+-                    ProjectTabStrip(workspace: workspace)
+-                        // As wide as the toolbar allows: the window less the traffic lights and New button before it
+-                        // and the zoom controls after it. Bounded, so adding tabs never pushes those aside; the
+-                        // strip scrolls instead.
+-                        .frame(width: max(200, windowWidth - 352), height: 34, alignment: .center)
++                if #available(macOS 26.0, *) {
++                    ToolbarItem(placement: .navigation) {
++                        ProjectTabStrip(workspace: workspace)
++                            .frame(width: max(200, windowWidth - 352), height: 34, alignment: .center)
++                    }
++                    .sharedBackgroundVisibility(.hidden)
++                } else {
++                    ToolbarItem(placement: .navigation) {
++                        ProjectTabStrip(workspace: workspace)
++                            .frame(width: max(200, windowWidth - 352), height: 34, alignment: .center)
++                    }
+                 }
+-                .sharedBackgroundVisibility(.hidden)
+             }
+             // Absorb all remaining navigation-toolbar width before the zoom controls.
+             // Without this spacer, the growing tab strip pushes the primary actions left.
+-            ToolbarSpacer(.flexible, placement: .navigation)
++            if #available(macOS 26.0, *) { ToolbarSpacer(.flexible, placement: .navigation) }
+             ToolbarItem(placement: .primaryAction) {
+                 Button("Fit") { session.fit() }.help("Fit canvas in window (⌘0)")
+                     .accessibilityIdentifier("fitCanvas").disabled(session.document == nil)
+diff --git a/Compositor/UI/BlendModePicker.swift b/Compositor/UI/BlendModePicker.swift
+index cf2448f..d93d791 100644
+--- a/Compositor/UI/BlendModePicker.swift
++++ b/Compositor/UI/BlendModePicker.swift
+@@ -17,7 +17,7 @@ struct BlendModePicker: NSViewRepresentable {
+         button.action = #selector(Coordinator.choose(_:))
+         button.setAccessibilityLabel("Blend mode")
+         // A capsule like the SwiftUI buttons and menus (`roundedControls`), which don't reach this AppKit pop-up.
+-        button.borderShape = .capsule
++        if #available(macOS 26.0, *) { button.borderShape = .capsule }
+         return button
+     }
+     func updateNSView(_ button: NSPopUpButton, context: Context) {
+diff --git a/Compositor/UI/TypeControls.swift b/Compositor/UI/TypeControls.swift
+index 3aeeae5..bfcb0cc 100644
+--- a/Compositor/UI/TypeControls.swift
++++ b/Compositor/UI/TypeControls.swift
+@@ -94,7 +94,7 @@ private struct TypeFontPicker: NSViewRepresentable {
+     func makeNSView(context: Context) -> NSPopUpButton {
+         let button = FixedWidthPopUpButton(frame: .zero, pullsDown: false)
+         button.addItem(withTitle: fontName)
+-        button.borderShape = .capsule
++        if #available(macOS 26.0, *) { button.borderShape = .capsule }
+         // A long font name is cut off at its end rather than widening the control or scrolling its start away.
+         button.cell?.lineBreakMode = .byTruncatingTail
+         button.cell?.usesSingleLineMode = true
