@@ -1,5 +1,9 @@
 # Compositor
 
+> [!NOTE]
+> This fork includes an unofficial macOS 15 compatibility patch for Compositor 1.2.11.
+> Upstream officially targets macOS 26.5+. See [macOS 15 compatibility and build instructions](docs/macos15.md).
+
 Adobe Photoshop costs too much and tools like GIMP don’t feel familiar enough for me to stay in flow. That’s why I built Compositor.
 
 The goal was to create a full-featured image editor that is completely free and open source. I use Photoshop for compositing and post-processing, so Compositor is built around that workflow - with the tools needed to create a pixel-perfect final image.
