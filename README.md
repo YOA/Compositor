@@ -3,7 +3,11 @@
 > [!NOTE]
 > This fork includes an unofficial macOS 15 compatibility patch for Compositor 1.2.11.
 > Upstream officially targets macOS 26.5+.
+> This fork is intended for people who want to try Compositor on macOS 15 and is not maintained on a guaranteed schedule.
+>
 > [English installation guide](docs/macos15.md) / [日本語インストールガイド](docs/macos15-ja.md)
+>
+> The project description below is inherited from upstream.
 
 Adobe Photoshop costs too much and tools like GIMP don’t feel familiar enough for me to stay in flow. That’s why I built Compositor.
 
@@ -65,26 +69,38 @@ Because it’s open source, you can download the Xcode project and add, remove, 
 - Export JPEG with a live preview (⇧⌥⌘S); Copy Merged
 - Photoshop-style keyboard shortcuts throughout, remappable in Edit > Keyboard Shortcuts
 - Drag a number's label to scrub its value, as in Photoshop
-- Automatic updates, signed and notarized
+- Automatic updates, signed and notarized in upstream releases (not provided by this macOS 15 compatibility fork)
 
 ## Requirements
+
+### macOS 15 compatibility branch
+
+- macOS 15.0 or later to run
+- macOS 15.6 or later and Xcode 26.1.1 to build using the compatibility guide
+
+### Upstream
 
 - macOS 26.5 or later
 - Xcode 26 or later (to build from source)
 
 ## Building
 
-Open `Compositor.xcodeproj` and run the **Compositor** scheme.
+For this compatibility branch, see:
 
-## Releasing
+- [English installation guide](docs/macos15.md)
+- [日本語インストールガイド](docs/macos15-ja.md)
 
-`scripts/release.sh` builds a Release version, signs it with Developer ID, notarizes and staples it, and packages it into `dist/Compositor-<version>.dmg`.
+## Upstream releasing
+
+The upstream `scripts/release.sh` builds a Release version, signs it with Developer ID, notarizes and staples it, and packages it into `dist/Compositor-<version>.dmg`.
 
 It needs, all kept outside this repository:
 
 - a **Developer ID Application** certificate in the login keychain
 - notarization credentials saved with `xcrun notarytool store-credentials "compositor-notary" …`
 - [`create-dmg`](https://github.com/create-dmg/create-dmg) (`brew install create-dmg`)
+
+This compatibility fork does not provide its own signed/notarized release or automatic update channel.
 
 ## License
 

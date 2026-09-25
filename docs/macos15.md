@@ -184,9 +184,9 @@ Compositor.app: replacing existing signature
 open -n .build-macos15/Build/Products/Release/Compositor.app
 ```
 
-If the app opens, the basic build is working.
+If the app opens, the build is working.
 
-At minimum, test creating a canvas, importing an image, painting, layer operations, and save/reopen.
+If needed, test creating a canvas, importing an image, painting, layer operations, and save/reopen.
 
 ---
 
@@ -230,7 +230,7 @@ Then build with Xcode 26.1.1 as described above.
 
 # About this fork
 
-This is an **unofficial compatibility build** for people who want to try
+This is an **unofficial compatibility build** for people who simply want to try
 Compositor 1.2.11 on macOS 15.
 
 There is no commitment to ongoing maintenance or to tracking future upstream releases.
@@ -242,8 +242,10 @@ or fork the repository and modify it as needed.
 
 Please do not report issues specific to this fork to the upstream project.
 
-This build uses an ad-hoc signature for local use and is not an official
-Developer ID signed or notarized Compositor release.
+This fork does not provide its own signed/notarized release or automatic update channel.
+The upstream update mechanism remains in the source, but it is not a distribution channel for this compatibility fork.
+
+Builds created with this guide use an ad-hoc signature for local use.
 
 ## License
 
